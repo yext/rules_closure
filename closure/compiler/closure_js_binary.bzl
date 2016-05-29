@@ -28,7 +28,14 @@ load("//closure/private:defs.bzl",
      "collect_required_css_labels",
      "determine_js_language",
      "difference",
-     "is_using_closure_library")
+     "is_using_closure_library",
+     "contains_file")
+
+_STRICT_LANGUAGES = set([
+    "ECMASCRIPT6_TYPED",
+    "ECMASCRIPT6_STRICT",
+    "ECMASCRIPT5_STRICT",
+])
 
 def _impl(ctx):
   if not ctx.attr.deps:
@@ -67,12 +74,25 @@ def _impl(ctx):
     args += ["--debug"]
   elif is_using_closure_library(srcs):
     args += ["--define=goog.DEBUG=false"]
+  if is_using_closure_library(srcs) and language_out in _STRICT_LANGUAGES:
+    args += ["--define=goog.STRICT_MODE_COMPATIBLE"]
+  if contains_file(srcs, ctx.file._soyutils_usegoog.short_path):
+    args += ["--define=goog.soy.REQUIRE_STRICT_AUTOESCAPE"]
   for entry_point in ctx.attr.entry_points:
     _validate_entry_point(entry_point, srcs)
     args += ["--entry_point=" + entry_point]
   if ctx.attr.pedantic:
     args += JS_PEDANTIC_ARGS
     args += ["--use_types_for_optimization"]
+  if contains_file(srcs, "external/closure_library/closure/goog/json/json.js"):
+    # TODO(ahochhaus): Make unknownDefines an error for user supplied defines.
+    # https://github.com/bazelbuild/rules_closure/issues/79
+    args += ["--jscomp_off=unknownDefines",
+             "--define=goog.json.USE_NATIVE_JSON"]
+  if ctx.attr.output_wrapper:
+    if ctx.attr.output_wrapper == "%output%":
+      fail("To disable use 'output_wrapper = \"\"'")
+    args += ["--output_wrapper=%s" % ctx.attr.output_wrapper]
   args += ctx.attr.defs
   args += ["--externs=%s" % extern.path for extern in externs]
   args += ["--js=%s" % src.path for src in srcs]
@@ -156,12 +176,17 @@ closure_js_binary = rule(
         "entry_points": attr.string_list(default=[]),
         "formatting": attr.string(),
         "language": attr.string(default="ECMASCRIPT3"),
+        "output_wrapper": attr.string(
+            default="(function(){%output%}).call(this);"),
         "pedantic": attr.bool(default=False),
         "_compiler": attr.label(
             default=Label("//closure/compiler"),
             executable=True),
         "_closure_library_base": CLOSURE_LIBRARY_BASE_ATTR,
         "_closure_library_deps": CLOSURE_LIBRARY_DEPS_ATTR,
+        "_soyutils_usegoog": attr.label(
+            default=Label("@soyutils_usegoog//file"),
+            single_file=True),
     },
     outputs={
         "out": "%{name}.js",
