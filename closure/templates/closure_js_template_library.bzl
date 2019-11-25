@@ -22,7 +22,21 @@ load("//closure/private:defs.bzl", "SOY_FILE_TYPE", "unfurl")
 _SOYTOJSSRCCOMPILER = "@com_google_template_soy//:SoyToJsSrcCompiler"
 
 def _impl(ctx):
-    args = ["--outputPathFormat=%s/{INPUT_DIRECTORY}/{INPUT_FILE_NAME}.js" %
+    classpath = []
+    for dep in ctx.attr.plugin_module_deps:
+        # print(dir(dep))
+        # print(dep[JavaInfo])
+        #print(dep[JavaInfo].full_compile_jars)
+        for jar in dep[JavaInfo].transitive_deps:
+            # print(jar)
+            # print(dir(jar))
+            # print(jar.short_path)
+            classpath.append(jar.path)
+    #     classpath.extend(dep[JavaInfo].full_compile_jars)
+    # print("CLASSPATH: " + ':'.join(classpath))
+
+    args = ["--main_advice_classpath="+':'.join(classpath)]
+    args += ["--outputPathFormat=%s/{INPUT_DIRECTORY}/{INPUT_FILE_NAME}.js" %
             ctx.configuration.genfiles_dir.path]
     if ctx.attr.soy_msgs_are_external:
         args += ["--googMsgsAreExternal"]
@@ -69,7 +83,8 @@ _closure_js_template_library = rule(
         ),
         "outputs": attr.output_list(),
         "globals": attr.label(allow_single_file = True),
-        "plugin_modules": attr.label_list(),
+        "plugin_modules": attr.string_list(),
+        "plugin_module_deps": attr.label_list(),
         "should_generate_soy_msg_defs": attr.bool(),
         "bidi_global_dir": attr.int(default = 1, values = [1, -1]),
         "soy_msgs_are_external": attr.bool(),
@@ -86,6 +101,7 @@ def closure_js_template_library(
         testonly = None,
         globals = None,
         plugin_modules = None,
+        plugin_module_deps = None,
         should_generate_soy_msg_defs = None,
         bidi_global_dir = None,
         soy_msgs_are_external = None,
@@ -102,6 +118,7 @@ def closure_js_template_library(
         visibility = ["//visibility:private"],
         globals = globals,
         plugin_modules = plugin_modules,
+        plugin_module_deps = plugin_module_deps,
         should_generate_soy_msg_defs = should_generate_soy_msg_defs,
         bidi_global_dir = bidi_global_dir,
         soy_msgs_are_external = soy_msgs_are_external,
