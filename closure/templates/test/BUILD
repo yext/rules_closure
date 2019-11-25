@@ -22,6 +22,7 @@ load("//closure:defs.bzl", "closure_js_proto_library")
 load("//closure:defs.bzl", "closure_js_template_library")
 load("//closure:defs.bzl", "closure_js_test")
 load("//closure:defs.bzl", "closure_java_template_library")
+load("//closure:defs.bzl", "closure_templates_plugin")
 load("//closure/private:file_test.bzl", "file_test")
 
 closure_js_proto_library(
@@ -61,6 +62,36 @@ closure_js_template_library(
     defs = [
         "--shouldGenerateGoogMsgDefs=true",
     ],
+)
+
+closure_js_template_library(
+    name = "plugin_soy",
+    srcs = ["plugin.soy"],
+    plugins = [":plugin_ExampleModule"],
+)
+
+java_library(
+    name = "ExampleModule",
+    srcs = ["ExampleModule.java"],
+    deps = [
+        "@com_google_guava//jar",
+        "@com_google_inject_extensions_guice_multibindings//jar",
+        "@com_google_inject_guice//jar",
+        "@com_google_template_soy//jar",
+    ],
+)
+
+closure_templates_plugin(
+    name = "plugin_ExampleModule",
+    module = "test.ExampleModule",
+    deps = [":ExampleModule"],
+)
+
+file_test(
+    name = "plugin_test_toLower",
+    size = "small",
+    file = ":plugin.soy.js",
+    regexp = ".toLowerCase()",
 )
 
 file_test(
