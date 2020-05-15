@@ -435,6 +435,105 @@ closure_jsx_test(
 	})
 }
 
+// TestJSVisibility tests the JS rule generation's visibility attribute.
+func TestJSVisibility(t *testing.T) {
+	files := []testtools.FileSpec{
+		{
+			Path: "WORKSPACE",
+		},
+
+		// Test that a package with default visibility results in no override on
+		// the individual rule.
+		{
+			Path:    "BUILD.bazel",
+			Content: `package(default_visibility = ["//a:__subpackages__"])`,
+		}, {
+			Path:    "corp.js",
+			Content: `goog.provide('corp')`,
+		},
+
+		// Test that a package under internal has visibility set correctly.
+		{
+			Path:    "a/b/internal/internal.js",
+			Content: `goog.provide('a.b.internal')`,
+		},
+		{
+			Path:    "a/b/internal/c/d/internal.js",
+			Content: `goog.provide('a.b.c.d.internal')`,
+		},
+		{
+			Path:    "a/b/internal/c/internal/d/internal.js",
+			Content: `goog.provide('a.b.c.internal.d.internal')`,
+		},
+	}
+
+	dir, cleanup := testtools.CreateFiles(t, files)
+	defer cleanup()
+
+	if err := runGazelle(dir, []string{}); err != nil {
+		t.Fatal(err)
+	}
+
+	testtools.CheckFiles(t, dir, []testtools.FileSpec{
+		{
+			Path: "BUILD.bazel",
+			Content: `
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+package(default_visibility = ["//a:__subpackages__"])
+
+closure_js_library(
+    name = "corp",
+    srcs = ["corp.js"],
+)
+`,
+		},
+
+		// NOTE: This case fails against the version of Gazelle pulled in by WORKSPACE.
+		// See the fix in https://github.com/bazelbuild/bazel-gazelle/pull/784
+		//
+		// 		{
+		// 			Path: "a/b/internal/BUILD.bazel",
+		// 			Content: `
+		// load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+		// closure_js_library(
+		//     name = "internal",
+		//     srcs = ["internal.js"],
+		//     visibility = ["//a/b:__subpackages__"],
+		// )
+		// `,
+		// 		},
+
+		{
+			Path: "a/b/internal/c/d/BUILD.bazel",
+			Content: `
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+closure_js_library(
+    name = "internal",
+    srcs = ["internal.js"],
+    visibility = ["//a/b:__subpackages__"],
+)
+`,
+		},
+
+		{
+			Path: "a/b/internal/c/internal/d/BUILD.bazel",
+			Content: `
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+closure_js_library(
+    name = "internal",
+    srcs = ["internal.js"],
+    visibility = ["//a/b/internal/c:__subpackages__"],
+)
+`,
+		},
+	})
+
+}
+
 func runGazelle(wd string, args []string) error {
 	oldWd, err := os.Getwd()
 	if err != nil {
