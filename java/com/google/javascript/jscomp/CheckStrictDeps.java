@@ -149,7 +149,7 @@ abstract class CheckStrictDeps
           namespace += ".js";
         }
 
-        Webpath me = Webpath.get(t.getSourceName());
+        Webpath me = Webpath.get(convertPathToModuleName(t.getSourceName(), state.roots).or(t.getSourceName()));
         if (!me.isAbsolute()) {
           me = Webpath.get("/").resolve(me);
         }
