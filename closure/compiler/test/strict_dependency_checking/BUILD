@@ -253,12 +253,21 @@ genrule(
 
 closure_js_library(
     name = "es6_g3_gen_lib",
-    srcs = ["es6_g.js", ":es6_g3_generate"],
+    srcs = [":es6_g_generate", ":es6_g3_generate"],
 )
 
 closure_js_binary(
     name = "es6_relative_imports_gen_srcs_bin",
+    entry_points = [
+        "closure/compiler/test/strict_dependency_checking/es6_g3.js",
+    ],
     deps = [":es6_g3_gen_lib"],
+)
+
+file_test(
+    name = "es6ModulesWithRelativeImports_compileCorrectlyWhenSourcesAreGenerated",
+    content = "console.log(\"hi\");\n",
+    file = "es6_relative_imports_gen_srcs_bin.js",
 )
 
 closure_js_library(
