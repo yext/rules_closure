@@ -27,8 +27,6 @@ import com.google.javascript.jscomp.lint.CheckJSDocStyle;
 import com.google.javascript.jscomp.lint.CheckMissingSemicolon;
 import com.google.javascript.jscomp.lint.CheckPrimitiveAsObject;
 import com.google.javascript.jscomp.lint.CheckPrototypeProperties;
-import com.google.javascript.jscomp.lint.CheckProvidesSorted;
-import com.google.javascript.jscomp.lint.CheckRequiresSorted;
 import com.google.javascript.jscomp.lint.CheckUnusedLabels;
 import com.google.javascript.jscomp.lint.CheckUselessBlocks;
 
@@ -88,8 +86,6 @@ final class JsCheckerPassConfig extends PassConfig.PassConfigDelegate {
                         new CheckMissingSemicolon(compiler),
                         new CheckSuper(compiler),
                         new CheckPrimitiveAsObject(compiler),
-                        new CheckProvidesSorted(CheckProvidesSorted.Mode.COLLECT_AND_REPORT),
-                        new CheckRequiresSorted(CheckRequiresSorted.Mode.COLLECT_AND_REPORT),
                         new CheckUnusedLabels(compiler),
                         new CheckUselessBlocks(compiler),
                         new ClosureCheckModule(compiler, compiler.getModuleMetadataMap()),
