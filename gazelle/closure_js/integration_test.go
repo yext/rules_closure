@@ -237,6 +237,24 @@ import { Widget } from '/es6modules/app/fields/widget';
 import testSuite from 'goog:goog.testing.testSuite';
  `,
 		},
+		// require extern tests
+		{
+			Path: "js/externs/prism.js",
+			Content: `
+/**
+* @fileoverview Externs for Prism
+* @externs
+* @provides prismjs
+*/
+var PrismJs = {};
+`,
+		},
+		{
+			Path: "externtest.js",
+			Content: `
+require('prismjs');
+`,
+		},
 	}
 	dir, cleanup := testtools.CreateFiles(t, files)
 	defer cleanup()
@@ -258,6 +276,13 @@ closure_js_library(
     name = "corp",
     srcs = ["corp.js"],
     visibility = ["//visibility:public"],
+)
+
+closure_js_library(
+    name = "externtest",
+    srcs = ["externtest.js"],
+    visibility = ["//visibility:public"],
+    deps = ["//js/externs:prism"],
 )
 
 closure_js_library(
@@ -403,6 +428,12 @@ closure_js_extern_library(
 			Path: "js/externs/BUILD.bazel",
 			Content: `
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_library")
+
+closure_js_library(
+    name = "prism",
+    srcs = ["prism.js"],
+    visibility = ["//visibility:public"],
+)
 
 closure_js_library(
     name = "react",

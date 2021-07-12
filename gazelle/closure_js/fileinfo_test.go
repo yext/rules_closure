@@ -59,7 +59,7 @@ goog.provide('corp.foo2');
 			},
 		},
 		{
-			"a require",
+			"a goog.require",
 			"foo.js",
 			`goog.provide('corp.foo');
 goog.require('corp');`,
@@ -71,7 +71,7 @@ goog.require('corp');`,
 			},
 		},
 		{
-			"multiple requires",
+			"multiple goog.requires",
 			"foo.js",
 			`goog.module('corp.foo');
 
@@ -153,16 +153,44 @@ import { capitalize } from 'goog:goog.string';
 			},
 		},
 		{
-			"declareModuleId",
-			"path/to/app/copylink.jsx",
-			`goog.declareModuleId('corp.path.to.app.CopyLink');`,
+			"one require",
+			"foo.js",
+			`goog.provide('corp.foo');
+const Prism = /** @type {PrismJS} */ (require('prismjs'));
+			`,
 			fileInfo{
-				moduleType: moduleTypeES6,
-				provides: []string{
-					"corp.path.to.app.CopyLink",
-					"/path/to/app/copylink",
-				},
-				ext: jsxExt,
+				imports:    []string{"prismjs"},
+				provides:   []string{"corp.foo"},
+				ext:        jsExt,
+				moduleType: moduleTypeGoogProvide,
+			},
+		},
+		{
+			"multiple requires",
+			"foo.js",
+			`goog.module('corp.foo');
+
+	/**
+	* @fileoverview Externs for Prism
+	* @externs
+	* @provides prismjs
+	*/
+
+const Prism = /** @type {PrismJS} */ (require('prismjs'));
+var dom = /** @type {DomJS} */ (require('domjs'));
+const {
+  foo,
+  bar
+} = /** @type {WidgetJS} */ (require('widgetjs'));
+const {A, B, C} = require('djs');
+require('ejs');
+
+`,
+			fileInfo{
+				provides:   []string{"corp.foo", "prismjs"},
+				imports:    []string{"prismjs", "domjs", "widgetjs", "djs", "ejs"},
+				ext:        jsExt,
+				moduleType: moduleTypeGoogModule,
 			},
 		},
 	} {

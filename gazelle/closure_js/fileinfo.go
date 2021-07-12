@@ -105,6 +105,10 @@ var (
 
 	declRegexp = regexp.MustCompile(`(?m)^(?:(?:const|var) [^;]*?\s*=\s*)?goog\.(require|provide|module|declareModuleId)\(['"]([^'"]+)`)
 
+	requireRegexp = regexp.MustCompile(`[^\.]require\(['"]([^'"]+)`)
+
+	externProvidesRegexp = regexp.MustCompile(`@provides ([a-z]+)`)
+
 	testonlyRegexp = regexp.MustCompile(`^goog\.setTestOnly\(`)
 
 	// NOTE: there are 3 different syntaxes for our purposes:
@@ -145,6 +149,16 @@ func jsFileInfo(repoRoot string, jsc *jsConfig, path string) (info fileInfo, ok 
 		default:
 			panic("unhandled declType: " + declType)
 		}
+	}
+
+	for _, match := range requireRegexp.FindAllSubmatch(b, -1) {
+		var identifier = string(match[1])
+		info.imports = append(info.imports, identifier)
+	}
+
+	for _, match := range externProvidesRegexp.FindAllSubmatch(b, -1) {
+		var identifier = string(match[1])
+		info.provides = append(info.provides, identifier)
 	}
 
 	// If this file declares neither goog.provide nor goog.module, treat it as
