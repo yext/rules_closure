@@ -165,6 +165,21 @@ import { capitalize } from 'goog:goog.string';
 				ext: jsxExt,
 			},
 		},
+		{
+			"import SCSS module from JS",
+			"foo.jsx",
+			"import * as styles from '/path/to/styles.module.scss';",
+			fileInfo{
+				moduleType: moduleTypeES6,
+				provides: []string{
+					"/foo",
+				},
+				imports: []string{
+					"/path/to/styles.module.scss",
+				},
+				ext: jsxExt,
+			},
+		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
 			dir, err := ioutil.TempDir(os.Getenv("TEST_TEMPDIR"), "TestJsFileInfo")

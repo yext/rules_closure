@@ -51,6 +51,13 @@ var jsKinds = map[string]rule.KindInfo{
 		},
 		ResolveAttrs: map[string]bool{"deps": true},
 	},
+	"scss_module": {
+		MatchAttrs: []string{"srcs"},
+		NonEmptyAttrs: map[string]bool {
+			"deps": true,
+			"srcs": true,
+		},
+	},
 }
 
 var jsLoads = []rule.LoadInfo{
@@ -59,6 +66,7 @@ var jsLoads = []rule.LoadInfo{
 		Symbols: []string{
 			"closure_js_library",
 			"closure_js_test",
+			"scss_module",
 
 			// NOTE: These rules do not actually exist, and there is no standard library
 			// type for JSX. On the bright side, it's easy enough to write your own.

@@ -16,21 +16,35 @@ import (
 )
 
 func (_ *jsLang) Imports(cfg *config.Config, r *rule.Rule, f *rule.File) []resolve.ImportSpec {
-	if !isJsLibrary(r.Kind()) {
-		return nil
-	}
-	var jsc = getJsConfig(cfg)
-
 	var provides []resolve.ImportSpec
-	for _, src := range r.AttrStrings("srcs") {
+	kind := r.Kind()
+
+	if isJsLibrary(kind) {
+		var jsc = getJsConfig(cfg)
+
+		for _, src := range r.AttrStrings("srcs") {
+			srcFilename := filepath.Join(filepath.Dir(f.Path), src)
+			fi, _ := jsFileInfo(cfg.RepoRoot, jsc, srcFilename)
+			for _, provide := range fi.provides {
+				provides = append(provides, resolve.ImportSpec{Lang: jsName, Imp: provide})
+			}
+		}
+	} else if isScssModule(kind) {
+		src := r.AttrString("src")
 		srcFilename := filepath.Join(filepath.Dir(f.Path), src)
-		fi, _ := jsFileInfo(cfg.RepoRoot, jsc, srcFilename)
-		for _, provide := range fi.provides {
-			provides = append(provides, resolve.ImportSpec{Lang: jsName, Imp: provide})
+
+		relPath, err := filepath.Rel(cfg.RepoRoot, srcFilename)
+		if err != nil {
+			log.Println("error resolving module name:", err)
+		} else {
+			provides = append(provides, resolve.ImportSpec{
+				Lang: jsName,
+				Imp: "/" + relPath,
+			})
 		}
 	}
 
-	if verbose {
+	if verbose && provides != nil {
 		fmt.Println("Imports:", f.Pkg+":"+r.Name(), "provides:", provides)
 	}
 	return provides
@@ -181,4 +195,8 @@ func isJsLibrary(kind string) bool {
 
 func isJsTest(kind string) bool {
 	return strings.HasPrefix(kind, "closure_js") && strings.HasSuffix(kind, "_test")
+}
+
+func isScssModule(kind string) bool {
+	return kind == "scss_module"
 }
