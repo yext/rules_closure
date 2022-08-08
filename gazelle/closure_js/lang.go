@@ -15,7 +15,7 @@ package closure_js
 
 import "github.com/bazelbuild/bazel-gazelle/language"
 
-const verbose = true
+const verbose = false
 
 const jsName = "closure_js"
 
