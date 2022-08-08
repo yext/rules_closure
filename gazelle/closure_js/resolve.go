@@ -33,15 +33,8 @@ func (_ *jsLang) Imports(cfg *config.Config, r *rule.Rule, f *rule.File) []resol
 		src := r.AttrString("src")
 		srcFilename := filepath.Join(filepath.Dir(f.Path), src)
 
-		relPath, err := filepath.Rel(cfg.RepoRoot, srcFilename)
-		if err != nil {
-			log.Println("error resolving module name:", err)
-		} else {
-			provides = append(provides, resolve.ImportSpec{
-				Lang: jsName,
-				Imp: "/" + relPath,
-			})
-		}
+		fi, _ := scssModuleFileInfo(cfg.RepoRoot, srcFilename)
+		provides = append(provides, resolve.ImportSpec{Lang: jsName, Imp: fi.provides[0]})
 	}
 
 	if verbose && provides != nil {

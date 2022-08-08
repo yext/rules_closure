@@ -210,3 +210,41 @@ import { capitalize } from 'goog:goog.string';
 		})
 	}
 }
+
+func TestScssModuleInfo(t *testing.T) {
+	for _, tc := range []struct {
+		desc, name, source string
+		want               fileInfo
+	}{
+		{
+			"SCSS module",
+			"/path/to/styles.module.scss",
+			"",
+			fileInfo{
+				provides:   []string{"/path/to/styles.module.scss"},
+			},
+		},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			dir, err := ioutil.TempDir(os.Getenv("TEST_TEMPDIR"), "TestScssModuleFileInfo")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.RemoveAll(dir)
+			path := filepath.Join(dir, tc.name)
+			os.MkdirAll(filepath.Dir(path), 0777)
+			if err := ioutil.WriteFile(path, []byte(tc.source), 0600); err != nil {
+				t.Fatal(err)
+			}
+			got, _ := scssModuleFileInfo(dir, path)
+			// Clear fields we don't care about for testing.
+			got = fileInfo{
+				provides:   got.provides,
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("case %q:\n got %#v\nwant %#v", tc.desc, got, tc.want)
+			}
+		})
+	}
+}

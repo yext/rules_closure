@@ -200,6 +200,19 @@ func jsFileInfo(repoRoot string, jsc *jsConfig, path string) (info fileInfo, ok 
 	return info, true
 }
 
+func scssModuleFileInfo(repoRoot string, path string) (info fileInfo, ok bool) {
+	info = fileNameInfo(path)
+
+	relPath, err := filepath.Rel(repoRoot, path)
+	if err != nil {
+		log.Println("error resolving module name:", err)
+		return info, false
+	}
+
+	info.provides = append(info.provides, "/" + relPath)
+	return info, true
+}
+
 func contains(sl []string, el string) bool {
 	for _, s := range sl {
 		if s == el {
