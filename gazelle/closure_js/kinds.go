@@ -53,14 +53,14 @@ var jsKinds = map[string]rule.KindInfo{
 	},
 	"scss_module": {
 		MatchAttrs: []string{"srcs"},
-		NonEmptyAttrs: map[string]bool {
+		NonEmptyAttrs: map[string]bool{
 			"deps": true,
 			"srcs": true,
 		},
 	},
 	"css_module": {
 		MatchAttrs: []string{"srcs"},
-		NonEmptyAttrs: map[string]bool {
+		NonEmptyAttrs: map[string]bool{
 			"deps": true,
 			"srcs": true,
 		},

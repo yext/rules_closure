@@ -200,7 +200,7 @@ func cssModuleFileInfo(repoRoot string, path string) (info fileInfo, ok bool) {
 		return info, false
 	}
 
-	info.provides = append(info.provides, "/" + relPath)
+	info.provides = append(info.provides, "/"+relPath)
 	return info, true
 }
 

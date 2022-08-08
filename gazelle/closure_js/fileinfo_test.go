@@ -236,7 +236,7 @@ func TestCssModuleInfo(t *testing.T) {
 			"/path/to/styles.module.css",
 			"",
 			fileInfo{
-				provides:   []string{"/path/to/styles.module.css"},
+				provides: []string{"/path/to/styles.module.css"},
 			},
 		},
 		{
@@ -244,7 +244,7 @@ func TestCssModuleInfo(t *testing.T) {
 			"/path/to/styles.module.scss",
 			"",
 			fileInfo{
-				provides:   []string{"/path/to/styles.module.scss"},
+				provides: []string{"/path/to/styles.module.scss"},
 			},
 		},
 	} {
@@ -262,7 +262,7 @@ func TestCssModuleInfo(t *testing.T) {
 			got, _ := cssModuleFileInfo(dir, path)
 			// Clear fields we don't care about for testing.
 			got = fileInfo{
-				provides:   got.provides,
+				provides: got.provides,
 			}
 
 			if !reflect.DeepEqual(got, tc.want) {
