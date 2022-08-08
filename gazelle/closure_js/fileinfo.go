@@ -64,9 +64,6 @@ const (
 
 	// htmlExt is applied to .html files.
 	htmlExt
-
-	// scssModuleExt is applied to .module.scss files.
-	scssModuleExt
 )
 
 // fileNameInfo returns information that can be inferred from the name of
@@ -81,12 +78,6 @@ func fileNameInfo(path_ string) fileInfo {
 		ext = jsxExt
 	case ".html":
 		ext = htmlExt
-	case ".scss":
-		if strings.HasPrefix(name, ".module.scss") {
-			ext = scssModuleExt
-		} else {
-			ext = unknownExt
-		}
 	default:
 		ext = unknownExt
 	}
@@ -200,7 +191,7 @@ func jsFileInfo(repoRoot string, jsc *jsConfig, path string) (info fileInfo, ok 
 	return info, true
 }
 
-func scssModuleFileInfo(repoRoot string, path string) (info fileInfo, ok bool) {
+func cssModuleFileInfo(repoRoot string, path string) (info fileInfo, ok bool) {
 	info = fileNameInfo(path)
 
 	relPath, err := filepath.Rel(repoRoot, path)

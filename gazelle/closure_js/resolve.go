@@ -29,11 +29,11 @@ func (_ *jsLang) Imports(cfg *config.Config, r *rule.Rule, f *rule.File) []resol
 				provides = append(provides, resolve.ImportSpec{Lang: jsName, Imp: provide})
 			}
 		}
-	} else if isScssModule(kind) {
+	} else if isCssModule(kind) {
 		src := r.AttrString("src")
 		srcFilename := filepath.Join(filepath.Dir(f.Path), src)
 
-		fi, _ := scssModuleFileInfo(cfg.RepoRoot, srcFilename)
+		fi, _ := cssModuleFileInfo(cfg.RepoRoot, srcFilename)
 		provides = append(provides, resolve.ImportSpec{Lang: jsName, Imp: fi.provides[0]})
 	}
 
@@ -190,6 +190,6 @@ func isJsTest(kind string) bool {
 	return strings.HasPrefix(kind, "closure_js") && strings.HasSuffix(kind, "_test")
 }
 
-func isScssModule(kind string) bool {
-	return kind == "scss_module"
+func isCssModule(kind string) bool {
+	return kind == "css_module" || kind == "scss_module"
 }

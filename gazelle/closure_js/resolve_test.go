@@ -57,3 +57,20 @@ func TestIsJsTest(t *testing.T) {
 		}
 	}
 }
+
+func TestIsCssModule(t *testing.T) {
+	var tests = []struct {
+		in  string
+		out bool
+	}{
+		{"css_module", true},
+		{"scss_module", true},
+		{"closure_jsx_library", false},
+	}
+	for _, test := range tests {
+		actual := isCssModule(test.in)
+		if actual != test.out {
+			t.Errorf("%v: expected %v, got %v", test.in, test.out, actual)
+		}
+	}
+}

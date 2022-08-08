@@ -180,6 +180,21 @@ import { capitalize } from 'goog:goog.string';
 				ext: jsxExt,
 			},
 		},
+		{
+			"relative import SCSS module from JS",
+			"path/to/foo.jsx",
+			"import * as styles from './styles/styles.module.scss';",
+			fileInfo{
+				moduleType: moduleTypeES6,
+				provides: []string{
+					"/path/to/foo",
+				},
+				imports: []string{
+					"/path/to/styles/styles.module.scss",
+				},
+				ext: jsxExt,
+			},
+		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
 			dir, err := ioutil.TempDir(os.Getenv("TEST_TEMPDIR"), "TestJsFileInfo")
@@ -211,11 +226,19 @@ import { capitalize } from 'goog:goog.string';
 	}
 }
 
-func TestScssModuleInfo(t *testing.T) {
+func TestCssModuleInfo(t *testing.T) {
 	for _, tc := range []struct {
 		desc, name, source string
 		want               fileInfo
 	}{
+		{
+			"CSS module",
+			"/path/to/styles.module.css",
+			"",
+			fileInfo{
+				provides:   []string{"/path/to/styles.module.css"},
+			},
+		},
 		{
 			"SCSS module",
 			"/path/to/styles.module.scss",
@@ -236,7 +259,7 @@ func TestScssModuleInfo(t *testing.T) {
 			if err := ioutil.WriteFile(path, []byte(tc.source), 0600); err != nil {
 				t.Fatal(err)
 			}
-			got, _ := scssModuleFileInfo(dir, path)
+			got, _ := cssModuleFileInfo(dir, path)
 			// Clear fields we don't care about for testing.
 			got = fileInfo{
 				provides:   got.provides,
