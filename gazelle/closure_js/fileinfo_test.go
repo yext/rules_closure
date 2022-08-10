@@ -165,6 +165,36 @@ import { capitalize } from 'goog:goog.string';
 				ext: jsxExt,
 			},
 		},
+		{
+			"import SCSS module from JS",
+			"foo.jsx",
+			"import * as styles from '/path/to/styles.module.scss';",
+			fileInfo{
+				moduleType: moduleTypeES6,
+				provides: []string{
+					"/foo",
+				},
+				imports: []string{
+					"/path/to/styles.module.scss",
+				},
+				ext: jsxExt,
+			},
+		},
+		{
+			"relative import SCSS module from JS",
+			"path/to/foo.jsx",
+			"import * as styles from './styles/styles.module.scss';",
+			fileInfo{
+				moduleType: moduleTypeES6,
+				provides: []string{
+					"/path/to/foo",
+				},
+				imports: []string{
+					"/path/to/styles/styles.module.scss",
+				},
+				ext: jsxExt,
+			},
+		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
 			dir, err := ioutil.TempDir(os.Getenv("TEST_TEMPDIR"), "TestJsFileInfo")
@@ -187,6 +217,52 @@ import { capitalize } from 'goog:goog.string';
 				moduleType: got.moduleType,
 				imports:    got.imports,
 				ext:        got.ext,
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("case %q:\n got %#v\nwant %#v", tc.desc, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestCssModuleInfo(t *testing.T) {
+	for _, tc := range []struct {
+		desc, name, source string
+		want               fileInfo
+	}{
+		{
+			"CSS module",
+			"/path/to/styles.module.css",
+			"",
+			fileInfo{
+				provides: []string{"/path/to/styles.module.css"},
+			},
+		},
+		{
+			"SCSS module",
+			"/path/to/styles.module.scss",
+			"",
+			fileInfo{
+				provides: []string{"/path/to/styles.module.scss"},
+			},
+		},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			dir, err := ioutil.TempDir(os.Getenv("TEST_TEMPDIR"), "TestScssModuleFileInfo")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.RemoveAll(dir)
+			path := filepath.Join(dir, tc.name)
+			os.MkdirAll(filepath.Dir(path), 0777)
+			if err := ioutil.WriteFile(path, []byte(tc.source), 0600); err != nil {
+				t.Fatal(err)
+			}
+			got, _ := cssModuleFileInfo(dir, path)
+			// Clear fields we don't care about for testing.
+			got = fileInfo{
+				provides: got.provides,
 			}
 
 			if !reflect.DeepEqual(got, tc.want) {

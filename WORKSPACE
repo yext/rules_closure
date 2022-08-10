@@ -2,9 +2,10 @@ workspace(name = "io_bazel_rules_closure")
 
 load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 load("@io_bazel_rules_closure//closure:repositories.bzl", "rules_closure_dependencies", "rules_closure_toolchains")
+
 rules_closure_dependencies()
+
 rules_closure_toolchains()
 
 http_archive(
@@ -20,32 +21,42 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_go",
+    sha256 = "16e9fca53ed6bd4ff4ad76facc9b7b651a89db1689a2877d6fd7b82aa824e366",
     urls = [
-        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.20.3/rules_go-v0.20.3.tar.gz",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.20.3/rules_go-v0.20.3.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
     ],
-    sha256 = "e88471aea3a3a4f19ec1310a55ba94772d087e9ce46e41ae38ecebe17935de7b",
 )
 
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "2ea0766532655d6dc5b62cb5b8425409d6f925f8d0456c0ba13b6341be36b62c",
-    strip_prefix = "bazel-gazelle-0da10e27a5c8ec15cb17a0b7919ad341efe0ffd2",
-    url = "https://github.com/bazelbuild/bazel-gazelle/archive/0da10e27a5c8ec15cb17a0b7919ad341efe0ffd2.zip",
+    sha256 = "3537ac67ec7235daf47238b6a80241001434a7931b98366b1bdae891ce45e45a",
+    strip_prefix = "bazel-gazelle-0.25-yext-2022-04-13",
+    url = "https://github.com/yext/bazel-gazelle/archive/0.25-yext-2022-04-13.zip",
 )
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
-go_rules_dependencies()
-go_register_toolchains()
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+go_register_toolchains(
+    go_version = "1.18.4",
+)
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+go_rules_dependencies()
 gazelle_dependencies()
 
-load("@bazel_gazelle//:deps.bzl", "go_repository")
 go_repository(
     name = "com_github_google_go_cmp",
     commit = "2248b49eaa8e1c8c0963ee77b40841adbc19d4ca",
     importpath = "github.com/google/go-cmp",
+)
+
+go_repository(
+    name = "org_golang_x_xerrors",
+    importpath = "golang.org/x/xerrors",
+    sum = "h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=",
+    version = "v0.0.0-20191204190536-9bdfabe68543",
 )
 
 ##########
