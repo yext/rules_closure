@@ -106,9 +106,6 @@ def _closure_js_library_impl(
         deprecated_stderr_file = None,
         deprecated_ijs_file = None,
         deprecated_typecheck_file = None):
-    # TODO(yannic): Figure out how to modify |find_js_module_roots|
-    # so that we won't need |workspace_name| anymore.
-
     if (
         not hasattr(ctx.files, "_ClosureWorker") or
         not hasattr(ctx.attr, "_closure_library_base") or
@@ -121,7 +118,6 @@ def _closure_js_library_impl(
     unusable_type_definition = ctx.files._unusable_type_definition
     actions = ctx.actions
     label = ctx.label
-    workspace_name = ctx.workspace_name
 
     if lenient:
         suppress = suppress + [
@@ -233,7 +229,7 @@ def _closure_js_library_impl(
     # repository, ignoring the workspace name. The exception is when the includes
     # attribute is being used, which chops the path down even further.
     js_module_roots = sort_roots(
-        find_js_module_roots(srcs, workspace_name, label, includes),
+        find_js_module_roots(srcs, label, includes),
     )
     args.add_all(js_module_roots, before_each = "--js_module_root")
 
@@ -460,4 +456,3 @@ closure_js_library = rule(
         "typecheck": "%{name}_typecheck",  # dummy output file
     },
 )
-
