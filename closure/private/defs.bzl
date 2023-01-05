@@ -67,6 +67,7 @@ def get_jsfile_path(f):
        This may be used to exclude non-JavaScript files inside tree artifacts
        expanded by Args#add_all.
     """
+
     # TODO(tjgq): Remove .zip once J2CL is switched to tree artifacts.
     return f.path if f.extension in ["js", "zip"] else None
 
@@ -165,7 +166,7 @@ def collect_runfiles(targets):
             data.append(target.default_runfiles.files)
     return depset(transitive = data)
 
-def find_js_module_roots(srcs, workspace_name, label, includes):
+def find_js_module_roots(srcs, label, includes):
     """Finds roots of JavaScript sources.
 
     This discovers --js_module_root paths for direct srcs that deviate from the
@@ -185,9 +186,10 @@ def find_js_module_roots(srcs, workspace_name, label, includes):
         srcs_it = srcs.to_list()
     roots = [f.root.path for f in srcs_it if f.root.path]
 
-    # Bazel started prefixing external repo paths with ../
-    new_bazel_version = Label("@foo//bar").workspace_root.startswith("../")
+    workspace_name = label.workspace_name
     if workspace_name != "__main__":
+        # Bazel started prefixing external repo paths with ../
+        new_bazel_version = Label("@foo//bar").workspace_root.startswith("../")
         if new_bazel_version:
             roots += ["%s" % root for root in roots.to_list()]
             roots += ["../%s" % workspace_name]
@@ -214,6 +216,7 @@ def find_js_module_roots(srcs, workspace_name, label, includes):
             for root in roots.to_list():
                 magic_roots.append("%s/%s" % (root, prefix))
         roots += magic_roots
+
     return depset(roots)
 
 def sort_roots(roots):
