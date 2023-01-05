@@ -147,7 +147,6 @@ def _impl(ctx):
         depset(transitive = [
             find_js_module_roots(
                 [ctx.outputs.bin],
-                ctx.workspace_name,
                 ctx.label,
                 getattr(ctx.attr, "includes", []),
             ),
