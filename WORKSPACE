@@ -16,50 +16,6 @@ http_archive(
 )
 
 ##########
-# Gazelle
-##########
-
-http_archive(
-    name = "io_bazel_rules_go",
-    sha256 = "16e9fca53ed6bd4ff4ad76facc9b7b651a89db1689a2877d6fd7b82aa824e366",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip",
-    ],
-)
-
-http_archive(
-    name = "bazel_gazelle",
-    sha256 = "3537ac67ec7235daf47238b6a80241001434a7931b98366b1bdae891ce45e45a",
-    strip_prefix = "bazel-gazelle-0.25-yext-2022-04-13",
-    url = "https://github.com/yext/bazel-gazelle/archive/0.25-yext-2022-04-13.zip",
-)
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-
-go_register_toolchains(
-    go_version = "1.18.4",
-)
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
-
-go_rules_dependencies()
-gazelle_dependencies()
-
-go_repository(
-    name = "com_github_google_go_cmp",
-    commit = "2248b49eaa8e1c8c0963ee77b40841adbc19d4ca",
-    importpath = "github.com/google/go-cmp",
-)
-
-go_repository(
-    name = "org_golang_x_xerrors",
-    importpath = "golang.org/x/xerrors",
-    sum = "h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=",
-    version = "v0.0.0-20191204190536-9bdfabe68543",
-)
-
-##########
 # Java deps
 ##########
 
