@@ -22,7 +22,7 @@ def setup_web_test_repositories(**kwargs):
     # TODO: Remove these 3 dependencies when rules_webtesting is pinned to an official
     # release (>0.3.5).
     go_rules_dependencies()
-    go_register_toolchains(version = "1.16.5")
+    go_register_toolchains(version = "1.20.5")
     gazelle_dependencies()
 
     web_test_repositories()
