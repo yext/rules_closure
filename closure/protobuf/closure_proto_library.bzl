@@ -28,9 +28,11 @@ def _generate_closure_js(target, ctx):
     # |goog.require()| for enums.
     js_out_options = [
         "import_style=closure",
-        "library=%s" % ctx.label.name,
         "add_require_for_enums",
     ]
+    # Don't add library option to well-known-types so embedded functions are added properly
+    if ctx.label.workspace_name != "com_google_protobuf":
+        js_out_options.append("library=%s" % ctx.label.name)
     if getattr(ctx.rule.attr, "testonly", False):
         js_out_options.append("testonly")
     js = ctx.actions.declare_file("%s.js" % ctx.label.name)
