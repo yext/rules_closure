@@ -31,11 +31,16 @@ def _generate_closure_js(target, ctx):
         "add_require_for_enums",
     ]
     # Don't add library option to well-known-types so embedded functions are added properly
-    if ctx.label.workspace_name != "com_google_protobuf":
+    if ctx.label.workspace_name == "com_google_protobuf":
+        # If library option is not specified, output file name is expected to match the input proto file name, not the bazel label name
+        # e.g. struct instead of struct_proto
+        out_file_name = ctx.label.name[:-len("_proto")]
+    else:
+        out_file_name = ctx.label.name
         js_out_options.append("library=%s" % ctx.label.name)
     if getattr(ctx.rule.attr, "testonly", False):
         js_out_options.append("testonly")
-    js = ctx.actions.declare_file("%s.js" % ctx.label.name)
+    js = ctx.actions.declare_file("%s.js" % out_file_name)
 
     # Add include paths for all proto files,
     # to avoid copying/linking the files for every target.
