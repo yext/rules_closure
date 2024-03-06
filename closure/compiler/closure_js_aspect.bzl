@@ -15,7 +15,6 @@
 load(
     "//closure/private:defs.bzl",
     "CLOSURE_WORKER_ATTR",
-    "ClosureJsLegacyRunfilesInfo",
     "ClosureJsLibraryInfo",
     "JS_FILE_TYPE",
     "collect_js",

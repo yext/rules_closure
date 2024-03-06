@@ -119,8 +119,6 @@ ClosureCssLibraryInfo = provider("ClosureCssLibraryInfo", fields = [
     "exports",
 ])
 
-ClosureJsLegacyRunfilesInfo = provider("ClosureJsLegacyRunfilesInfo", fields = ["runfiles"])
-
 WebFilesInfo = provider("WebFilesInfo", fields = ["manifest", "manifests", "webpaths", "dummy", "exports"])
 
 def get_jsfile_path(f):
@@ -216,9 +214,6 @@ def collect_runfiles(targets):
     """Aggregates data runfiles from targets."""
     data = []
     for target in targets:
-        if target and ClosureJsLegacyRunfilesInfo in target:
-            data.append(target[ClosureJsLegacyRunfilesInfo].runfiles)
-            continue
         if hasattr(target, "runfiles"):
             data.append(target.runfiles.files)
             continue

@@ -15,7 +15,7 @@
 load("//closure/compiler:closure_js_aspect.bzl", _closure_js_aspect = "closure_js_aspect")
 load("//closure/compiler:closure_js_binary.bzl", _closure_js_binary = "closure_js_binary")
 load("//closure/compiler:closure_js_library.bzl", _closure_js_library = "closure_js_library", _create_closure_js_library = "create_closure_js_library")
-load("//closure/private:defs.bzl", _CLOSURE_JS_TOOLCHAIN_ATTRS = "CLOSURE_JS_TOOLCHAIN_ATTRS")
+load("//closure/private:defs.bzl", _CLOSURE_JS_TOOLCHAIN_ATTRS = "CLOSURE_JS_TOOLCHAIN_ATTRS", _ClosureJsLibraryInfo = "ClosureJsLibraryInfo")
 load("//closure/private:files_equal_test.bzl", _files_equal_test = "files_equal_test")
 load("//closure/protobuf:closure_js_proto_library.bzl", _closure_js_proto_library = "closure_js_proto_library")
 load("//closure/protobuf:closure_proto_library.bzl", _closure_proto_library = "closure_proto_library")
@@ -35,6 +35,7 @@ closure_js_aspect = _closure_js_aspect
 closure_js_binary = _closure_js_binary
 closure_js_library = _closure_js_library
 create_closure_js_library = _create_closure_js_library
+ClosureJsLibraryInfo = _ClosureJsLibraryInfo
 CLOSURE_JS_TOOLCHAIN_ATTRS = _CLOSURE_JS_TOOLCHAIN_ATTRS
 files_equal_test = _files_equal_test
 closure_js_proto_library = _closure_js_proto_library
