@@ -26,6 +26,7 @@ load(
     "collect_js",
     "collect_runfiles",
     "difference",
+    "extract_providers",
     "find_js_module_roots",
     "get_jsfile_path",
     "sort_roots",
@@ -81,8 +82,8 @@ def _impl(ctx):
             ", ".join(JS_LANGUAGES.to_list()),
         ))
 
-    deps = unfurl(ctx.attr.deps, provider = ClosureJsLibraryInfo)
-    js = collect_js(deps, ctx.attr._closure_library_base, css = ctx.attr.css)
+    deps = extract_providers(ctx.attr.deps, ClosureJsLibraryInfo)
+    js = collect_js(unfurl(deps), css = ctx.attr.css)
     if not js.srcs:
         fail("There are no JS source files in the transitive closure")
 
