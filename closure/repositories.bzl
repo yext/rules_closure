@@ -554,7 +554,6 @@ def com_google_errorprone_error_prone_annotations():
         jar_urls = [
             "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar",
             "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar",
-            
         ],
     )
 
@@ -713,10 +712,10 @@ def com_google_javascript_closure_compiler():
 
 def com_google_javascript_closure_library():
     http_archive(
-       name = "com_google_javascript_closure_library",
-       sha256 = "4da36963d2ef97b6e3d72fbe74c5db4bff2878150f9785299db5c94b4c42f2e6",
-       strip_prefix = "closure-library-20220301",
-       urls = ["https://github.com/google/closure-library/archive/v20220301.tar.gz"],
+        name = "com_google_javascript_closure_library",
+        sha256 = "4da36963d2ef97b6e3d72fbe74c5db4bff2878150f9785299db5c94b4c42f2e6",
+        strip_prefix = "closure-library-20220301",
+        urls = ["https://github.com/google/closure-library/archive/v20220301.tar.gz"],
     )
 
 def com_google_jsinterop_annotations():
@@ -1098,10 +1097,9 @@ def rules_webtesting():
 
     http_archive(
         name = "io_bazel_rules_webtesting",
-        sha256 = "41d500a97ad9621dcf92fcb0cd77916e517388b196e5c3f0e63c7753e983b2bb",
-        strip_prefix = "rules_webtesting-4d7ec75d1cbb289f977b41638fc8b630bdf22bee",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/archive/4d7ec75d1cbb289f977b41638fc8b630bdf22bee.tar.gz"],
-
+        sha256 = "6e104e54c283c94ae3d5c6573cf3233ce478e89e0f541a869057521966a35b8f",
+        strip_prefix = "rules_webtesting-b6fc79c5a37cd18a5433fd080c9d2cc59548222c",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/archive/b6fc79c5a37cd18a5433fd080c9d2cc59548222c.tar.gz"],
     )
 
 def zlib():
