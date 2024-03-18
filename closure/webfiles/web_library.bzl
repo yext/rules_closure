@@ -79,7 +79,7 @@ def _web_library(ctx):
             webpath = webpath,
         ))
 
-    webpaths += [depset(new_webpaths)]
+    webpaths.append(depset(new_webpaths))
     manifest = ctx.actions.declare_file("%s.pbtxt" % ctx.label.name)
     ctx.actions.write(
         output = manifest,
