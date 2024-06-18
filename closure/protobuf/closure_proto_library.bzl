@@ -89,7 +89,10 @@ closure_proto_aspect = aspect(
     attrs = dict({
         # internal only
         "_protoc": attr.label(
-            default = Label("@com_google_protobuf//:protoc"),
+            # Use protoc binary from bazel flag "--proto_compiler"
+            # This allows overwriting the default @com_google_protobuf//:protoc binary
+            # and removes dependency from XCode for MacOS builds
+            default = configuration_field(fragment = "proto", name = "proto_compiler"),
             executable = True,
             cfg = "host",
         ),
