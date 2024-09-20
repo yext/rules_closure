@@ -59,6 +59,16 @@ closure_js_library(
     ],
 )
 
+closure_js_library(
+    name = "soy_maps",
+    srcs = ["@com_google_template_soy_jssrc//:maps"],
+    lenient = True,
+    deps = [
+        "@com_google_javascript_closure_library//closure/goog/array",
+        "@com_google_javascript_closure_library//closure/goog/asserts",
+    ],
+)
+
 java_library(
     name = "safe_html_types",
     exports = ["@com_google_common_html_types"],
