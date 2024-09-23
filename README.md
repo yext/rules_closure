@@ -1,3 +1,16 @@
+# Closure Rules for Bazel for Yext internal use
+
+To build/test locally you must pass the --proto_compiler flag whihc we 
+use to speed up builds.
+
+The .bazelrc file adds `--proto_compiler=@com_google_protobuf//:protoc` 
+automatically for you, so the following should "just work".
+
+```
+bazel build //... 
+bazel test //...
+```
+
 # Closure Rules for Bazel (αlpha) [![Bazel CI build status](https://badge.buildkite.com/7569410e2a2661076591897283051b6d137f35102167253fed.svg)](https://buildkite.com/bazel/closure-compiler-rules-closure-postsubmit)
 
 JavaScript | Templating | Stylesheets | Miscellaneous
