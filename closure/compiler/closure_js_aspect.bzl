@@ -15,24 +15,17 @@
 load(
     "//closure/private:defs.bzl",
     "CLOSURE_WORKER_ATTR",
-    "JS_FILE_TYPE",
-    "collect_js",
-    "collect_runfiles",
-    "convert_path_to_es6_module_name",
-    "find_js_module_roots",
-    "get_jsfile_path",
-    "make_jschecker_progress_message",
-    "unfurl",
+    "ClosureJsLibraryInfo",
 )
 
 def _closure_js_aspect_impl(target, ctx):
-    if hasattr(target, "closure_js_library"):
-        return struct()
+    if ClosureJsLibraryInfo in target:
+        return []
 
     # This aspect is currently a no-op in the open source world. We intend to add
     # content to it in the future. It is still provided to ensure the Skylark API
     # is well defined.
-    return struct()
+    return []
 
 closure_js_aspect = aspect(
     implementation = _closure_js_aspect_impl,

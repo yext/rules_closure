@@ -16,18 +16,19 @@
 
 load(
     "//closure/private:defs.bzl",
+    "WebFilesInfo",
     "create_argfile",
     "difference",
+    "extract_providers",
     "long_path",
     "unfurl",
+    "collect_runfiles",
 )
 
 def _web_library(ctx):
-    if not ctx.attr.srcs:
-        if ctx.attr.deps:
-            fail("deps can not be set when srcs is not")
+    if not ctx.attr.srcs and not ctx.attr.deps:
         if not ctx.attr.exports:
-            fail("exports must be set if srcs is not")
+            fail("exports must be set if srcs or deps is not")
     if ctx.attr.path:
         if not ctx.attr.path.startswith("/"):
             fail("webpath must start with /")
@@ -41,20 +42,21 @@ def _web_library(ctx):
         fail("when \"*\" is suppressed no other items should be present")
 
     # process what came before
-    deps = unfurl(ctx.attr.deps, provider = "webfiles")
+    deps = unfurl(extract_providers(ctx.attr.deps, provider = WebFilesInfo))
     webpaths = []
     manifests = []
     for dep in deps:
-        webpaths.append(dep.webfiles.webpaths)
-        manifests += [dep.webfiles.manifests]
+        webpaths.append(dep.webpaths)
+        manifests.append(dep.manifests)
 
     # process what comes now
     new_webpaths = []
     manifest_srcs = []
     path = ctx.attr.path
     strip = _get_strip(ctx)
+    use_full_path = ctx.attr.use_full_path
     for src in ctx.files.srcs:
-        suffix = _get_path_relative_to_package(src)
+        suffix = _get_path_relative_to_package(src, use_full_path)
         if strip:
             if not suffix.startswith(strip):
                 fail("Relative src path not start with '%s': %s" % (strip, suffix))
@@ -77,14 +79,14 @@ def _web_library(ctx):
             webpath = webpath,
         ))
 
-    webpaths += [depset(new_webpaths)]
+    webpaths.append(depset(new_webpaths))
     manifest = ctx.actions.declare_file("%s.pbtxt" % ctx.label.name)
     ctx.actions.write(
         output = manifest,
-        content = struct(
+        content = proto.encode_text(struct(
             label = str(ctx.label),
             src = manifest_srcs,
-        ).to_proto(),
+        )),
     )
     manifests = depset([manifest], transitive = manifests, order = "postorder")
 
@@ -103,13 +105,11 @@ def _web_library(ctx):
         args.append(category)
     inputs.extend(ctx.files.srcs)
     for dep in deps:
-        inputs.append(dep.webfiles.dummy)
-        for f in dep.files.to_list():
-            inputs.append(f)
-        direct_manifests += [dep.webfiles.manifest]
-        inputs.append(dep.webfiles.manifest)
+        inputs.append(dep.dummy)
+        direct_manifests.append(dep.manifest)
+        inputs.append(dep.manifest)
         args.append("--direct_dep")
-        args.append(dep.webfiles.manifest.path)
+        args.append(dep.manifest.path)
     for man in difference(manifests, depset(direct_manifests)):
         inputs.append(man)
         args.append("--transitive_dep")
@@ -137,7 +137,7 @@ def _web_library(ctx):
         ],
     )
     params_file = ctx.actions.declare_file("%s_server_params.pbtxt" % ctx.label.name)
-    ctx.actions.write(output = params_file, content = params.to_proto())
+    ctx.actions.write(output = params_file, content = proto.encode_text(params))
     ctx.actions.write(
         is_executable = True,
         output = ctx.outputs.executable,
@@ -147,30 +147,28 @@ def _web_library(ctx):
         ),
     )
 
-    transitive_runfiles = depset(
-        transitive = [ctx.attr.server.data_runfiles.files] +
-                     [dep.data_runfiles.files for dep in deps],
-    )
-
-    return struct(
-        files = depset([ctx.outputs.executable, ctx.outputs.dummy]),
-        exports = unfurl(ctx.attr.exports),
-        webfiles = struct(
+    return [
+        DefaultInfo(
+            files = depset([ctx.outputs.executable, ctx.outputs.dummy]),
+            runfiles = collect_runfiles(
+                ctx,
+                files = ctx.files.srcs + ctx.files.data + [
+                    manifest,
+                    params_file,
+                    ctx.outputs.executable,
+                    ctx.outputs.dummy,
+                ],
+                extra_runfiles_attrs = ["server", "exports"],
+            ),
+        ),
+        WebFilesInfo(
             manifest = manifest,
             manifests = manifests,
             webpaths = depset(transitive = webpaths),
             dummy = ctx.outputs.dummy,
+            exports = unfurl(extract_providers(ctx.attr.exports, WebFilesInfo)),
         ),
-        runfiles = ctx.runfiles(
-            files = ctx.files.srcs + ctx.files.data + [
-                manifest,
-                params_file,
-                ctx.outputs.executable,
-                ctx.outputs.dummy,
-            ],
-            transitive_files = transitive_runfiles,
-        ),
-    )
+    ]
 
 def _fail(ctx, message):
     if ctx.attr.suppress == ["*"]:
@@ -178,13 +176,13 @@ def _fail(ctx, message):
     else:
         fail(message)
 
-def _get_path_relative_to_package(artifact):
+def _get_path_relative_to_package(artifact, use_full_path):
     """Returns file path relative to the package that declared it."""
     path = artifact.path
     for prefix in (
         artifact.root.path,
-        artifact.owner.workspace_root if artifact.owner else "",
-        artifact.owner.package if artifact.owner else "",
+        artifact.owner.workspace_root if artifact.owner and not use_full_path else "",
+        artifact.owner.package if artifact.owner and not use_full_path else "",
     ):
         if prefix:
             prefix = prefix + "/"
@@ -213,7 +211,8 @@ web_library = rule(
         "host": attr.string(default = "0.0.0.0"),
         "port": attr.string(default = "6006"),
         "srcs": attr.label_list(allow_files = True),
-        "deps": attr.label_list(providers = ["webfiles"]),
+        "deps": attr.label_list(providers = [WebFilesInfo]),
+        "use_full_path": attr.bool(default = False),
         "exports": attr.label_list(),
         "data": attr.label_list(allow_files = True),
         "suppress": attr.string_list(),

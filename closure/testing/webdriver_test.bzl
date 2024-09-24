@@ -14,13 +14,14 @@
 
 """Macro for running webtest with a test driver."""
 
-load("//closure:webfiles/web_library.bzl", "web_library")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
+load("//closure:webfiles/web_library.bzl", "web_library")
 
 def webdriver_test(
         name,
         browsers,
         test_file_js,
+        data = None,
         tags = [],
         visibility = None,
         **kwargs):
@@ -45,18 +46,31 @@ def webdriver_test(
     path = "/"
     html_webpath = "%s%s.html" % (path, html)
 
+    web_library(
+        name = "%s_test_files" % name,
+        srcs = [html, test_file_js],
+        path = path,
+        testonly = True,
+    )
+
     # set up a development web server that links to the test for debugging purposes.
     web_library(
         name = "%s_debug" % name,
-        srcs = [html, test_file_js],
+        srcs = data if data else [],
+        deps = [":%s_test_files" % name],
         path = path,
+        testonly = True,
+        use_full_path = True,
     )
 
     web_library(
         name = "%s_test_runner" % name,
-        srcs = [html, test_file_js],
+        srcs = data if data else [],
+        deps = [":%s_test_files" % name],
         path = path,
         server = Label("//java/io/bazel/rules/closure/testing:webdriver_test_bin"),
+        testonly = True,
+        use_full_path = True,
     )
 
     web_test_suite(
@@ -97,4 +111,3 @@ _gen_test_html = rule(
     },
     outputs = {"html_file": "%{name}.html"},
 )
-

@@ -17,7 +17,7 @@
 
 load("//closure/compiler:closure_js_aspect.bzl", "closure_js_aspect")
 load("//closure/compiler:closure_js_library.bzl", "closure_js_library")
-load("//closure/private:defs.bzl", "SOY_FILE_TYPE", "unfurl")
+load("//closure/private:defs.bzl", "ClosureJsLibraryInfo", "SOY_FILE_TYPE", "extract_providers", "unfurl")
 load("//closure/templates:closure_templates_plugin.bzl", "SoyPluginInfo")
 
 _SOYTOJSSRCCOMPILER = "@com_google_template_soy//:SoyToJsSrcCompiler"
@@ -26,20 +26,20 @@ def _impl(ctx):
     args = ["--outputPathFormat=%s/{INPUT_DIRECTORY}/{INPUT_FILE_NAME}.js" %
             ctx.configuration.genfiles_dir.path]
     if ctx.attr.soy_msgs_are_external:
-        args += ["--googMsgsAreExternal"]
+        args.append("--googMsgsAreExternal")
     if ctx.attr.should_generate_soy_msg_defs:
-        args += ["--shouldGenerateGoogMsgDefs"]
+        args.append("--shouldGenerateGoogMsgDefs")
     if ctx.attr.bidi_global_dir:
-        args += ["--bidiGlobalDir=%s" % ctx.attr.bidi_global_dir]
+        args.append("--bidiGlobalDir=%s" % ctx.attr.bidi_global_dir)
     if ctx.attr.plugins:
-        args += ["--pluginModules=%s" % ",".join([
+        args.append("--pluginModules=%s" % ",".join([
             m[SoyPluginInfo].generator.module
             for m in ctx.attr.plugins
-        ])]
+        ]))
     for arg in ctx.attr.defs:
         if not arg.startswith("--") or (" " in arg and "=" not in arg):
             fail("Please use --flag=value syntax for defs")
-        args += [arg]
+        args.append(arg)
     inputs = []
     for f in ctx.files.srcs:
         args.append("--srcs=" + f.path)
@@ -47,9 +47,9 @@ def _impl(ctx):
     if ctx.file.globals:
         args += ["--compileTimeGlobalsFile", ctx.file.globals.path]
         inputs.append(ctx.file.globals)
-    for dep in unfurl(ctx.attr.deps, provider = "closure_js_library"):
-        for f in dep.closure_js_library.descriptors.to_list():
-            args += ["--protoFileDescriptors=%s" % f.path]
+    for dep in unfurl(extract_providers(ctx.attr.deps, provider = ClosureJsLibraryInfo)):
+        for f in dep.descriptors.to_list():
+            args.append("--protoFileDescriptors=%s" % f.path)
             inputs.append(f)
 
     plugin_transitive_deps = depset(
@@ -79,7 +79,7 @@ _closure_js_template_library = rule(
         "srcs": attr.label_list(allow_files = SOY_FILE_TYPE),
         "deps": attr.label_list(
             aspects = [closure_js_aspect],
-            providers = ["closure_js_library"],
+            providers = [ClosureJsLibraryInfo],
         ),
         "outputs": attr.output_list(),
         "globals": attr.label(allow_single_file = True),

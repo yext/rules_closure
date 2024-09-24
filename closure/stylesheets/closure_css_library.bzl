@@ -17,37 +17,39 @@
 load(
     "//closure/private:defs.bzl",
     "CSS_FILE_TYPE",
+    "ClosureCssLibraryInfo",
+    "ClosureJsLibraryInfo",
     "collect_css",
     "collect_runfiles",
+    "extract_providers",
     "unfurl",
 )
 
 def _closure_css_library(ctx):
-    deps = unfurl(ctx.attr.deps, provider = "closure_css_library")
+    deps = unfurl(extract_providers(ctx.attr.deps, provider = ClosureCssLibraryInfo))
+    exports = unfurl(extract_providers(ctx.attr.exports, provider = ClosureCssLibraryInfo))
     css = collect_css(deps, ctx.attr.orientation)
-    return struct(
-        files = depset(),
-        exports = unfurl(ctx.attr.exports),
-        closure_js_library = struct(),
-        closure_css_library = struct(
+    return [
+        ClosureCssLibraryInfo(
+            label = ctx.label,
             srcs = depset(ctx.files.srcs, transitive = [css.srcs]),
             labels = depset([ctx.label], transitive = [css.labels]),
             orientation = ctx.attr.orientation,
+            exports = exports,
         ),
-        runfiles = ctx.runfiles(
-            files = ctx.files.srcs + ctx.files.data,
-            transitive_files = depset(
-                transitive = [collect_runfiles(deps), collect_runfiles(ctx.attr.data)],
-            ),
+        ClosureJsLibraryInfo(),
+        DefaultInfo(
+            files = depset(),
+            runfiles = collect_runfiles(ctx, ctx.files.srcs),
         ),
-    )
+    ]
 
 closure_css_library = rule(
     implementation = _closure_css_library,
     attrs = {
         "srcs": attr.label_list(allow_files = CSS_FILE_TYPE),
         "data": attr.label_list(allow_files = True),
-        "deps": attr.label_list(providers = ["closure_css_library"]),
+        "deps": attr.label_list(providers = [ClosureCssLibraryInfo]),
         "exports": attr.label_list(),
         "orientation": attr.string(default = "LTR"),
     },

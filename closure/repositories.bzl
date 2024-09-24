@@ -14,8 +14,8 @@
 
 """External dependencies for Closure Rules."""
 
-load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 load("//closure/private:platform_http_file.bzl", "platform_http_file")
 
 def rules_closure_toolchains():
@@ -550,10 +550,10 @@ def com_google_errorprone_error_prone_annotations():
     java_import_external(
         name = "com_google_errorprone_error_prone_annotations",
         licenses = ["notice"],
-        jar_sha256 = "03d0329547c13da9e17c634d1049ea2ead093925e290567e1a364fd6b1fc7ff8",
+        jar_sha256 = "ec6f39f068b6ff9ac323c68e28b9299f8c0a80ca512dccb1d4a70f40ac3ec054",
         jar_urls = [
-            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar",
-            "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar",
+            "https://mirror.bazel.build/repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar",
+            "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.23.0/error_prone_annotations-2.23.0.jar",
         ],
     )
 
@@ -573,8 +573,8 @@ def com_google_errorprone_javac_shaded():
     )
 
 def com_google_guava():
-    version = "31.1"
-    sha256 = "a42edc9cab792e39fe39bb94f3fca655ed157ff87a8af78e1d6ba5b07c4a00ab"
+    version = "32.1.1"
+    sha256 = "91fbba37f1c8b251cf9ea9e7d3a369eb79eb1e6a5df1d4bbf483dd0380740281"
 
     java_import_external(
         name = "com_google_guava",
@@ -673,7 +673,7 @@ def com_google_java_format():
     )
 
 def com_google_javascript_closure_compiler():
-    version = "v20230411"
+    version = "v20230802"
     jar = "closure-compiler-%s.jar" % version
     java_import_external(
         name = "com_google_javascript_closure_compiler",
@@ -681,7 +681,7 @@ def com_google_javascript_closure_compiler():
         jar_urls = [
             "https://repo1.maven.org/maven2/com/google/javascript/closure-compiler/%s/%s" % (version, jar),
         ],
-        jar_sha256 = "8d9dbc6a6e3030de56a78262a91e1496a32253c2119c9d29220c7de1172ed35a",
+        jar_sha256 = "230a9e05a8a7d9daa083b1f6e86edba6eb1ec6402a6a258432fe4245cdc4a95f",
         deps = [
             "@com_google_code_gson",
             "@com_google_guava",
@@ -712,10 +712,10 @@ def com_google_javascript_closure_compiler():
 
 def com_google_javascript_closure_library():
     http_archive(
-       name = "com_google_javascript_closure_library",
-       sha256 = "4da36963d2ef97b6e3d72fbe74c5db4bff2878150f9785299db5c94b4c42f2e6",
-       strip_prefix = "closure-library-20220301",
-       urls = ["https://github.com/google/closure-library/archive/v20220301.tar.gz"],
+        name = "com_google_javascript_closure_library",
+        sha256 = "4da36963d2ef97b6e3d72fbe74c5db4bff2878150f9785299db5c94b4c42f2e6",
+        strip_prefix = "closure-library-20220301",
+        urls = ["https://github.com/google/closure-library/archive/v20220301.tar.gz"],
     )
 
 def com_google_jsinterop_annotations():
@@ -1038,11 +1038,10 @@ def rules_cc():
 def rules_java():
     http_archive(
         name = "rules_java",
-        sha256 = "f5a3e477e579231fca27bf202bb0e8fbe4fc6339d63b38ccb87c2760b533d1c3",
-        strip_prefix = "rules_java-981f06c3d2bd10225e85209904090eb7b5fb26bd",
+        sha256 = "29ba147c583aaf5d211686029842c5278e12aaea86f66bd4a9eb5e525b7f2701",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_java/archive/981f06c3d2bd10225e85209904090eb7b5fb26bd.tar.gz",
-            "https://github.com/bazelbuild/rules_java/archive/981f06c3d2bd10225e85209904090eb7b5fb26bd.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_java/releases/download/6.3.0/rules_java-6.3.0.tar.gz",
+            "https://github.com/bazelbuild/rules_java/releases/download/6.3.0/rules_java-6.3.0.tar.gz",
         ],
     )
 
@@ -1080,27 +1079,26 @@ def rules_webtesting():
     # TODO: Please remove the two following dependencies when rules_webtesting is pinned to an official release (>0.3.5).
     http_archive(
         name = "io_bazel_rules_go",
-        sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
+        sha256 = "278b7ff5a826f3dc10f04feaf0b70d48b68748ccd512d7f98bf442077f043fe3",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
-            "https://github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.41.0/rules_go-v0.41.0.zip",
+            "https://github.com/bazelbuild/rules_go/releases/download/v0.41.0/rules_go-v0.41.0.zip",
         ],
     )
 
     http_archive(
         name = "bazel_gazelle",
-        sha256 = "62ca106be173579c0a167deb23358fdfe71ffa1e4cfdddf5582af26520f1c66f",
+        sha256 = "d3fa66a39028e97d76f9e2db8f1b0c11c099e8e01bf363a923074784e451f809",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.23.0/bazel-gazelle-v0.23.0.tar.gz",
-            "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.23.0/bazel-gazelle-v0.23.0.tar.gz",
+            "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.33.0/bazel-gazelle-v0.33.0.tar.gz",
         ],
     )
 
     http_archive(
         name = "io_bazel_rules_webtesting",
-        sha256 = "72355642d053b5df75f33d6e950d089c313677cebb97b373ad125ed2e4f32119",
-        strip_prefix = "rules_webtesting-d8c4843cdb44cadae1fb43a1f64e17492697de7f",
-        urls = ["https://github.com/bazelbuild/rules_webtesting/archive/d8c4843cdb44cadae1fb43a1f64e17492697de7f.tar.gz"],
+        sha256 = "6e104e54c283c94ae3d5c6573cf3233ce478e89e0f541a869057521966a35b8f",
+        strip_prefix = "rules_webtesting-b6fc79c5a37cd18a5433fd080c9d2cc59548222c",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/archive/b6fc79c5a37cd18a5433fd080c9d2cc59548222c.tar.gz"],
     )
 
 def zlib():

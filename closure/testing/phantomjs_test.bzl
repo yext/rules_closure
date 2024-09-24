@@ -19,8 +19,11 @@
 
 load(
     "//closure/private:defs.bzl",
+    "ClosureJsBinaryInfo",
+    "ClosureJsLibraryInfo",
     "HTML_FILE_TYPE",
     "collect_runfiles",
+    "extract_providers",
     "long_path",
     "unfurl",
 )
@@ -31,12 +34,12 @@ def _impl(ctx):
     files = [ctx.outputs.executable]
     srcs = []
     direct_srcs = []
-    deps = unfurl(ctx.attr.deps, provider = "closure_js_library")
+    deps = list(ctx.attr.deps)
     for dep in deps:
-        if hasattr(dep, "closure_js_binary"):
-            direct_srcs += [dep.closure_js_binary.bin]
+        if ClosureJsBinaryInfo in dep:
+            direct_srcs.append(dep[ClosureJsBinaryInfo].bin)
         else:
-            srcs += [dep.closure_js_library.srcs]
+            srcs.append(dep[ClosureJsLibraryInfo].srcs)
     srcs = depset(direct_srcs, transitive = srcs)
     deps.append(ctx.attr.runner)
 
@@ -44,29 +47,22 @@ def _impl(ctx):
         "#!/bin/sh\nexec " + ctx.executable._phantomjs.short_path,
     ]
     if ctx.attr.debug:
-        args += ["--debug=true"]
-    args += [ctx.attr.harness.closure_js_binary.bin.short_path]
-    args += [ctx.file.html.short_path]
+        args.append("--debug=true")
+    args.append(ctx.attr.harness[ClosureJsBinaryInfo].bin.short_path)
+    args.append(ctx.file.html.short_path)
     args += [long_path(ctx, src) for src in srcs.to_list()]
-    args += [long_path(ctx, src) for src in ctx.attr.runner.closure_js_library.srcs.to_list()]
+    args += [long_path(ctx, src) for src in ctx.attr.runner[ClosureJsLibraryInfo].srcs.to_list()]
     ctx.actions.write(
         is_executable = True,
         output = ctx.outputs.executable,
         content = " \\\n  ".join(args),
     )
-    return struct(
+    return DefaultInfo(
         files = depset(files),
-        runfiles = ctx.runfiles(
-            files = files + ctx.attr.data + [ctx.file.html],
-            transitive_files = depset(transitive = [
-                collect_runfiles(deps),
-                collect_runfiles(ctx.attr.data),
-                collect_runfiles([
-                    ctx.attr._phantomjs,
-                    ctx.attr.runner,
-                    ctx.attr.harness,
-                ]),
-            ]),
+        runfiles = collect_runfiles(
+            ctx,
+            files = files + [ctx.file.html],
+            extra_runfiles_attrs = ["_phantomjs", "runner", "harness"],
         ),
     )
 
@@ -74,10 +70,10 @@ phantomjs_test = rule(
     test = True,
     implementation = _impl,
     attrs = {
-        "deps": attr.label_list(providers = ["closure_js_library"]),
-        "runner": attr.label(providers = ["closure_js_library"]),
+        "deps": attr.label_list(providers = [ClosureJsLibraryInfo]),
+        "runner": attr.label(providers = [ClosureJsLibraryInfo]),
         "harness": attr.label(
-            providers = ["closure_js_binary"],
+            providers = [ClosureJsBinaryInfo],
             default = Label("//closure/testing:phantomjs_harness_bin"),
         ),
         "html": attr.label(
