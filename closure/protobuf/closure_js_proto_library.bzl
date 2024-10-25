@@ -50,12 +50,17 @@ def closure_js_proto_library(
 
     cmd += ["-I%s" % i for i in _collect_includes(srcs)]
     cmd.append("--js_out=%s:$(@D)" % ",".join(js_out_options))
+    
+    plugin = Label("@protobuf_js//:protoc-gen-js")
+    plugin_path = "$(location %s)" % plugin
+    cmd.append("--plugin=protoc-gen-js=%s" % (plugin_path))
+
     cmd.append("--descriptor_set_out=$(@D)/%s.descriptor" % name)
     cmd += ["$(locations " + src + ")" for src in srcs]
 
     native.genrule(
         name = name + "_gen",
-        srcs = srcs,
+        srcs = srcs + [plugin],
         testonly = testonly,
         visibility = ["//visibility:private"],
         message = "Generating JavaScript Protocol Buffer file",

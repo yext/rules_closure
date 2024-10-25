@@ -49,12 +49,15 @@ def _generate_closure_js(target, ctx):
     out_options = ",".join(js_out_options)
     out_path = "/".join(js.path.split("/")[:-1])
     args.append("--js_out=%s:%s" % (out_options, out_path))
+    
+    plugin = ctx.executable._protoc_gen_js
+    args.append("--plugin=protoc-gen-js=%s" % (plugin.path))
 
     # Add paths of protos we generate files for.
     args += [file.path for file in target[ProtoInfo].direct_sources]
 
     ctx.actions.run(
-        inputs = target[ProtoInfo].transitive_imports,
+        inputs = target[ProtoInfo].transitive_imports.to_list() + [plugin],
         outputs = [js],
         executable = ctx.executable._protoc,
         arguments = args,
@@ -89,6 +92,12 @@ closure_proto_aspect = aspect(
             # and removes dependency from XCode for MacOS builds
             default = configuration_field(fragment = "proto", name = "proto_compiler"),
             executable = True,
+            cfg = "host",
+        ),
+        "_protoc_gen_js": attr.label(
+            executable = True,
+            allow_files = True,
+            default = "@protobuf_js//:protoc-gen-js",
             cfg = "host",
         ),
         "_closure_library": attr.label(

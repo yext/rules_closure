@@ -136,3 +136,10 @@ load("//closure:defs.bzl", "setup_web_test_repositories")
 setup_web_test_repositories(
     chromium = True,
 )
+
+load("//protobuf_js:protobuf_js_repo.bzl", "protobuf_js_repo")
+
+protobuf_js_repo(
+    name = "protobuf_js",
+    version = "3.21.4",
+)
