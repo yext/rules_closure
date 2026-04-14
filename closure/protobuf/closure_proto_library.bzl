@@ -84,7 +84,7 @@ closure_proto_aspect = aspect(
     attrs = dict({
         # internal only
         "_protoc": attr.label(
-            default = Label("@com_google_protobuf//:protoc"),
+            default = Label("@rules_closure_protoc//:protoc"),
             executable = True,
             cfg = "host",
         ),

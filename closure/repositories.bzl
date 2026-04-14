@@ -17,6 +17,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:java.bzl", "java_import_external")
 load("//closure/private:platform_http_file.bzl", "platform_http_file")
+load("//closure/private:protoc_repo.bzl", "protoc_repo")
 
 def rules_closure_toolchains():
     """An utility method to load all Closure toolchains.
@@ -140,6 +141,7 @@ def rules_closure_dependencies(
         com_google_protobuf()
     if not omit_com_google_protobuf_js:
         com_google_protobuf_js()
+    rules_closure_protoc()
     if not omit_com_google_template_soy:
         com_google_template_soy()
     if not omit_com_google_template_soy_jssrc:
@@ -749,6 +751,23 @@ def com_google_protobuf_js():
         urls = [
             "https://github.com/protocolbuffers/protobuf/archive/v3.19.1.tar.gz",
         ],
+    )
+
+def rules_closure_protoc():
+    protoc_repo(
+        name = "rules_closure_protoc",
+        urls = {
+            "linux-x86_64": [
+                "https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-linux-x86_64.zip",
+            ],
+            "osx-universal_binary": [
+                "https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-osx-x86_64.zip",
+            ],
+        },
+        sha256s = {
+            "linux-x86_64": "44a6b498e996b845edef83864734c0e52f42197e85c9d567af55f4e3ff09d755",
+            "osx-universal_binary": "f3ac8c37e87cb345a509eef7ec614092995d9423b8effb42c207c8fbdacb97ee",
+        },
     )
 
 def com_google_template_soy():

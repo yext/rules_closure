@@ -35,7 +35,7 @@ def closure_js_proto_library(
         testonly = None,
         binary = 1,
         import_style = None,
-        protocbin = Label("@com_google_protobuf//:protoc"),
+        protocbin = Label("@rules_closure_protoc//:protoc"),
         **kwargs):
     cmd = ["$(location %s)" % protocbin]
     js_out_options = ["library=%s" % name]
